@@ -1,0 +1,86 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+# Log into RxTrac
+url = "https://myrx.mdanderson.org/rxtrac/Account/Login"
+driver = webdriver.Chrome()
+driver.get(url)
+
+driver.implicitly_wait(5) # gives an implicit wait for 15 seconds
+
+# https://selenium-python.readthedocs.io/locating-elements.html
+
+# Find the username field id="UserName"
+username_field = driver.find_element(By.ID,"UserName")
+# Enter username "UserName"
+username_field.send_keys("UserName")
+
+# Find the password field id="Password"
+password_field = driver.find_element(By.ID,"Password")
+# Enter the password "Password"
+password_field.send_keys("Password")
+
+# Find the login button id="login" and click it
+login_button = driver.find_element(By.CLASS_NAME,"icon-signin")
+login_button.click()
+
+
+
+# Wait for the page to load
+WebDriverWait(driver, 20).until(EC.title_contains("RxTrac"))
+
+# Select from the dropdown menu id="windowlogs" and choose the option "Life Science Building"
+dropdown_menu = driver.find_element(By.ID,"windowlogs")
+
+# Wait for the page to load (1 second)
+driver.implicitly_wait(1)
+
+dropdown_menu.send_keys("Life Science Building")
+
+# Wait for the page to load (1 second)
+driver.implicitly_wait(1)
+
+# Select button input id="newNote"
+new_note_button = driver.find_element(By.ID,"newNote")
+new_note_button.click()
+
+# Wait for the page to load (1 second)
+driver.implicitly_wait(1)
+
+# Modal window pops up
+# Input Class="form-control" id="OrderModalReleaseTime" type="text" name="OrderModal.ReleaseTime" value="1/17/2020 10:00:00 AM"
+release_time = driver.find_element(By.ID,"OrderModalReleaseTime")
+
+# Desginate the release time 07:00:00
+release_time.send_keys("05:00:00")
+# Desginate time as PM (NOTE: arrow down will depend on what time of day it is)
+# release_time.send_keys(Keys.ARROW_DOWN)
+
+# Find "OrderModalNonChemotherapy" field
+non_chemo = driver.find_element(By.ID,"OrderModalNonChemotherapy")
+# Type "3 mL Bupivacaine with 0.5% Epinephrine"
+non_chemo.send_keys("3 mL Bupivacaine with 0.5% Epinephrine")
+
+# Find "OrderModalComments" field
+comments = driver.find_element(By.ID,"OrderModalComments")
+# Enter "x16_syringes"
+comments.send_keys("x16_syringes")
+
+
+# Select button input id="trackNew"
+track_new_button = driver.find_element(By.ID,"trackNew")
+track_new_button.click()
+
+# Wait for the page to load (2 second)
+driver.implicitly_wait(2)
+
+# Take a screenshot of the page
+driver.save_screenshot("trackscreenshot.png")
+
+
+# Close the web browser
+# driver.quit()
