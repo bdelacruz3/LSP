@@ -29,7 +29,6 @@ login_button = driver.find_element(By.CLASS_NAME,"icon-signin")
 login_button.click()
 
 
-
 # Wait for the page to load
 WebDriverWait(driver, 20).until(EC.title_contains("RxTrac"))
 
@@ -44,43 +43,64 @@ dropdown_menu.send_keys("Life Science Building")
 # Wait for the page to load (1 second)
 driver.implicitly_wait(1)
 
-# Select button input id="newNote"
-new_note_button = driver.find_element(By.ID,"newNote")
-new_note_button.click()
+
+# Find input id="datepicker" and click it
+datepicker = driver.find_element(By.ID,"datepicker")
+datepicker.click()
+# Change the date to 1/17/2002
+datepicker.send_keys("1/25/2024")
+# Press enter
+datepicker.send_keys(Keys.ENTER)
+
 
 # Wait for the page to load (1 second)
 driver.implicitly_wait(1)
 
-# Modal window pops up
+# ITERATE THROUGH THIS LOOP FOR EACH ITEM IN THE LIST
+# List of items to be tracked: {"3 mL Bupivacaine with 0.5% Epinephrine", "x16_syringes"}; {"3 mL 1% Buffered Lidocaine with Epinephrine", "x16_syringes"}; "1mL 1% Buffered Lidocaine with Epinephrine", "x10_syringes"}
+RTU = ["3 mL Bupivacaine with 0.5% Epinephrine", "3 mL 1% Buffered Lidocaine with Epinephrine", "1mL 1% Buffered Lidocaine with Epinephrine"]
+syringes = [16, 16, 10]
+for i, RTU in enumerate(RTU):
+    syringe = syringes[i]
+    print(f"{syringe} x {RTU}")
+
+
+# Select button input id="newNote"
+new_note_button = driver.find_element(By.ID,"newNote")
+new_note_button.click()
+# Wait for the page to load (1 second)
+driver.implicitly_wait(1)
+# MODAL BODY WINDOW
 # Input Class="form-control" id="OrderModalReleaseTime" type="text" name="OrderModal.ReleaseTime" value="1/17/2020 10:00:00 AM"
 release_time = driver.find_element(By.ID,"OrderModalReleaseTime")
-
 # Desginate the release time 07:00:00
-release_time.send_keys("05:00:00")
+release_time.send_keys("07:00:00")
 # Desginate time as PM (NOTE: arrow down will depend on what time of day it is)
 # release_time.send_keys(Keys.ARROW_DOWN)
-
+# Find "OrderModalName" field
+name = driver.find_element(By.ID,"OrderModalName")
+# Enter "automated_script"
+name.send_keys("automated_script")
 # Find "OrderModalNonChemotherapy" field
 non_chemo = driver.find_element(By.ID,"OrderModalNonChemotherapy")
 # Type "3 mL Bupivacaine with 0.5% Epinephrine"
-non_chemo.send_keys("3 mL Bupivacaine with 0.5% Epinephrine")
-
+non_chemo.send_keys({"3 mL Bupivacaine with 0.5% Epinephrine"})
 # Find "OrderModalComments" field
 comments = driver.find_element(By.ID,"OrderModalComments")
 # Enter "x16_syringes"
-comments.send_keys("x16_syringes")
-
-
+comments.send_keys({"x16_syringes"})
 # Select button input id="trackNew"
 track_new_button = driver.find_element(By.ID,"trackNew")
 track_new_button.click()
+# END LOOP
+
 
 # Wait for the page to load (2 second)
 driver.implicitly_wait(2)
 
 # Take a screenshot of the page
-driver.save_screenshot("trackscreenshot.png")
+# driver.save_screenshot("trackscreenshot2.png")
 
 
 # Close the web browser
-# driver.quit()
+driver.quit()
