@@ -1,0 +1,206 @@
+# R2 Rx Track (iPhone)
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from datetime import datetime
+curr_time = datetime.now()
+formatted_time = curr_time.strftime('%M:%S.%f')
+print("Formatted time in Minutes:Seconds:Milliseconds is",formatted_time)
+
+
+# Log into RxTrac
+url = "https://myrx.mdanderson.org/rxtrac/Account/Login"
+driver = webdriver.Chrome()
+driver.get(url)
+driver.implicitly_wait(5) # gives an implicit wait for 15 seconds
+
+# https://selenium-python.readthedocs.io/locating-elements.html
+
+# USER INFORMATION
+# Find the username field id="UserName"
+username_field = driver.find_element(By.ID,"UserName")
+# Enter the username "USERNAME"
+username_field.send_keys("USERNAME")
+# Find the password field id="Password"
+password_field = driver.find_element(By.ID,"Password")
+# Enter the password "PASSWORD"
+password_field.send_keys("PASSWORD")
+# Find the login button id="login" and click it
+login_button = driver.find_element(By.CLASS_NAME,"icon-signin")
+login_button.click()
+
+
+# Wait for the page to load
+WebDriverWait(driver, 20).until(EC.title_contains("RxTrac"))
+
+# CHOOSE PHARMACY LOCATION
+# Select from the dropdown menu id="windowlogs" and choose the option "Life Science Building"
+dropdown_menu = driver.find_element(By.ID,"windowlogs")
+# Change windowlogs to R2
+# dropdown_menu.send_keys("R2")
+
+# select option label="R2" from dropdown menu (value="string:R2")
+# <option value="" class="">Select</option>
+# <option label="R2" value="string:R2" selected="selected">R2</option>
+
+
+# Wait for the page to load (1 second)
+driver.implicitly_wait(1)
+
+# CHOOSE DATE
+# Find input id="datepicker" and click it
+datepicker = driver.find_element(By.ID,"datepicker")
+datepicker.click()
+# Change the date to 1/17/2002
+datepicker.send_keys("03/29/2024")
+# Press enter
+datepicker.send_keys(Keys.ENTER)
+
+
+# Wait for the page to load (1 second)
+driver.implicitly_wait(1)
+
+# ITERATE THROUGH THIS LOOP FOR EACH ITEM IN THE LIST
+PHONE = ["iPhone ONE", "iPhone TWO", "iPhone THREE"]
+cell_numbers = ["281-793-9194", "713-454-3038", "713-228-7461"]
+for i, RTU in enumerate(PHONE):
+    cell_number = cell_numbers[i]
+    print(f"{cell_number} x {PHONE}")
+
+
+# Select button input id="newNote"
+new_note_button = driver.find_element(By.ID,"newNote")
+new_note_button.click()
+# Wait for the page to load (1 second)
+driver.implicitly_wait(20)
+# MODAL BODY WINDOW
+# Input Class="form-control" id="OrderModalReleaseTime" type="text" name="OrderModal.ReleaseTime" value="1/17/2020 10:00:00 AM"
+release_time = driver.find_element(By.ID,"OrderModalReleaseTime")
+release_time.send_keys("05:00:00")
+# Desginate time as PM (NOTE: arrow down will depend on what time of day it is)
+release_time.send_keys(Keys.ARROW_DOWN)
+name = driver.find_element(By.ID,"OrderModalName")
+name.send_keys("automated_script")
+non_chemo = driver.find_element(By.ID,"OrderModalNonChemotherapy")
+# wait for the page to load (1 second)
+driver.implicitly_wait(20)
+non_chemo.send_keys("iPhone ONE")
+chemo = driver.find_element(By.ID,"OrderModalChemotherapy")
+chemo.send_keys("281-793-9194")
+track_new_button = driver.find_element(By.ID,"trackNew")
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "trackNew")))
+track_new_button.click()
+# END LOOP
+
+# Select button input id="newNote"
+new_note_button = driver.find_element(By.ID,"newNote")
+new_note_button.click()
+# Wait for the page to load (1 second)
+driver.implicitly_wait(20)
+release_time = driver.find_element(By.ID,"OrderModalReleaseTime")
+release_time.send_keys("05:00:00")
+# Desginate time as PM (NOTE: arrow down will depend on what time of day it is)
+release_time.send_keys(Keys.ARROW_DOWN)
+name = driver.find_element(By.ID,"OrderModalName")
+driver.implicitly_wait(20)
+name.send_keys("automated_script")
+non_chemo = driver.find_element(By.ID,"OrderModalNonChemotherapy")
+non_chemo.send_keys("iPhone TWO")
+chemo = driver.find_element(By.ID,"OrderModalChemotherapy")
+chemo.send_keys("713-454-3038")
+track_new_button = driver.find_element(By.ID,"trackNew")
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "trackNew")))
+track_new_button.click()
+# END LOOP 2
+
+# Select button input id="newNote"
+new_note_button = driver.find_element(By.ID,"newNote")
+new_note_button.click()
+# Wait for the page to load (1 second)
+driver.implicitly_wait(20)
+release_time = driver.find_element(By.ID,"OrderModalReleaseTime")
+release_time.send_keys("05:00:00")
+# Desginate time as PM (NOTE: arrow down will depend on what time of day it is)
+release_time.send_keys(Keys.ARROW_DOWN)
+name = driver.find_element(By.ID,"OrderModalName")
+name.send_keys("automated_script")
+non_chemo = driver.find_element(By.ID,"OrderModalNonChemotherapy")
+non_chemo.send_keys("iPhone THREE")
+chemo = driver.find_element(By.ID,"OrderModalChemotherapy")
+chemo.send_keys("713-228-7461")
+track_new_button = driver.find_element(By.ID,"trackNew")
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "trackNew")))
+track_new_button.click()
+# END LOOP 3
+
+
+## PM -->  12:30 PM 
+# Select button input id="newNote"
+new_note_button = driver.find_element(By.ID,"newNote")
+new_note_button.click()
+driver.implicitly_wait(20)
+release_time = driver.find_element(By.ID,"OrderModalReleaseTime")
+release_time.send_keys("12:30:00")
+# Desginate time as PM (NOTE: arrow down will depend on what time of day it is)
+# release_time.send_keys(Keys.ARROW_DOWN)
+name = driver.find_element(By.ID,"OrderModalName")
+driver.implicitly_wait(20)
+name.send_keys("automated_script")
+non_chemo = driver.find_element(By.ID,"OrderModalNonChemotherapy")
+non_chemo.send_keys("iPhone ONE")
+chemo = driver.find_element(By.ID,"OrderModalChemotherapy")
+chemo.send_keys("281-793-9194")
+track_new_button = driver.find_element(By.ID,"trackNew")
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "trackNew")))
+track_new_button.click()
+# END LOOP 4
+
+# Select button input id="newNote"
+new_note_button = driver.find_element(By.ID,"newNote")
+new_note_button.click()
+driver.implicitly_wait(20)
+release_time = driver.find_element(By.ID,"OrderModalReleaseTime")
+release_time.send_keys("12:30:00")
+# Desginate time as PM (NOTE: arrow down will depend on what time of day it is)
+# release_time.send_keys(Keys.ARROW_DOWN)
+name = driver.find_element(By.ID,"OrderModalName")
+driver.implicitly_wait(20)
+name.send_keys("automated_script")
+non_chemo = driver.find_element(By.ID,"OrderModalNonChemotherapy")
+non_chemo.send_keys("iPhone TWO")
+chemo = driver.find_element(By.ID,"OrderModalChemotherapy")
+chemo.send_keys("713-454-3038")
+track_new_button = driver.find_element(By.ID,"trackNew")
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "trackNew")))
+track_new_button.click()
+# END LOOP 5
+
+# Select button input id="newNote"
+new_note_button = driver.find_element(By.ID,"newNote")
+new_note_button.click()
+driver.implicitly_wait(20)
+release_time = driver.find_element(By.ID,"OrderModalReleaseTime")
+release_time.send_keys("12:30:00")
+# Desginate time as PM (NOTE: arrow down will depend on what time of day it is)
+# release_time.send_keys(Keys.ARROW_DOWN)
+name = driver.find_element(By.ID,"OrderModalName")
+name.send_keys("automated_script")
+non_chemo = driver.find_element(By.ID,"OrderModalNonChemotherapy")
+non_chemo.send_keys("iPhone THREE")
+chemo = driver.find_element(By.ID,"OrderModalChemotherapy")
+chemo.send_keys("713-228-7461")
+track_new_button = driver.find_element(By.ID,"trackNew")
+
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "trackNew")))
+track_new_button.click()
+# END LOOP 6
+
+# Take a screenshot of the page
+driver.save_screenshot("trackscreenshot2.png")
+
+
+# Close the web browser
+driver.quit()
