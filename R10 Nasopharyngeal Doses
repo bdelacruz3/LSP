@@ -20,12 +20,12 @@ driver.implicitly_wait(5) # gives an implicit wait for 15 seconds
 # USER INFORMATION
 # Find the username field id="UserName"
 username_field = driver.find_element(By.ID,"UserName")
-# Enter the username "jde2"
-username_field.send_keys("jde2")
+# Enter the username "USERNAME"
+username_field.send_keys("USERNAME")
 # Find the password field id="Password"
 password_field = driver.find_element(By.ID,"Password")
-# Enter the password "Lanabear321!
-password_field.send_keys("Lanabear321!")
+# Enter the password "PASSWORD"
+password_field.send_keys("PASSWORD")
 # Find the login button id="login" and click it
 login_button = driver.find_element(By.CLASS_NAME,"icon-signin")
 login_button.click()
