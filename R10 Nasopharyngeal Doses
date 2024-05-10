@@ -1,3 +1,43 @@
+# weekdays_in_month.py
+from datetime import datetime, timedelta
+
+# Initialize the date for June 1st, 2024
+start_date = datetime(2024, 6, 1)
+# Calculate the number of days in June 2024
+end_date = datetime(2024, 7, 1)
+
+# List to hold the dates
+weekdays_in_month = []
+
+# Generate the dates
+while start_date < end_date:
+    # Check if it's a weekday (Monday to Friday are 0-4)
+    if start_date.weekday() < 5:
+        # Append the date in the specified format
+        weekdays_in_month.append(start_date.strftime('%m-%d-%Y'))
+    # Move to the next day
+    start_date += timedelta(days=1)
+
+weekdays_in_month
+
+# Print the list of weekdays in June 2024
+for date in weekdays_in_month:
+    print(date)
+
+# Use the first 5 values in the list to iterate through the weekdays in the month and perform the desired actions.
+weekdays_in_month = weekdays_in_month[:5]
+# Convert these strings to integers
+for i in range(len(weekdays_in_month)):
+    weekdays_in_month[i] = int(weekdays_in_month[i].split("-")[1])
+# Call this list first_five_weekdays_in_month
+first_five_weekdays_in_month = weekdays_in_month
+
+
+# Use this list to iterate through the weekdays in the month and perform the desired actions.
+
+###
+###
+
 # R10 Nasopharyngeal Doses
 
 from selenium import webdriver
@@ -43,26 +83,26 @@ dropdown_menu.send_keys("R10NOTE")
 # Wait for the page to load (1 second)
 driver.implicitly_wait(1)
 
-# CHOOSE DATE 
-# For Nasopharyngeal doses it is only for weekdays
-# Find input id="datepicker" and click it
-datepicker = driver.find_element(By.ID,"datepicker")
-datepicker.click()
-# Change the date to 1/17/2002
-datepicker.send_keys("04/22/2024")
-# Press enter
-datepicker.send_keys(Keys.ENTER)
+## Create a for-loop through the weekdays in June 2024 using the list generated earlier
+# CHOOSE DATE
+for date in weekdays_in_month:
+    # Find input id="datepicker" and click it
+    datepicker = driver.find_element(By.ID,"datepicker")
+    datepicker.click()
+    # Change the date to the current date in the loop
+    datepicker.send_keys(first_five_weekdays_in_month[date])
+    # Press enter
+    datepicker.send_keys(Keys.ENTER)
 
-# Wait for the page to load (1 second)
-driver.implicitly_wait(1)
-
-# ITERATE THROUGH THIS LOOP FOR EACH ITEM IN THE LIST
-Nasopharyngeal = ["lidocaine nasopharyngeal btls", "phenylephrine nasopharyngeal btls"]
+    # Wait for the page to load (1 second)
+    driver.implicitly_wait(1)
+    Nasopharyngeal = ["lidocaine nasopharyngeal btls", "phenylephrine nasopharyngeal btls"]
 quantities = [20, 20]
 for i, quantity in enumerate(Nasopharyngeal):
     quantity = quantities[i]
     print(f"{quantity} x {Nasopharyngeal[i]}")
 
+    # ITERATE THROUGH THIS LOOP FOR EACH ITEM IN THE LIST
     # Select button input id="newNote"
     new_note_button = driver.find_element(By.ID,"newNote")
     new_note_button.click()
@@ -98,6 +138,7 @@ for i, quantity in enumerate(Nasopharyngeal):
     track_new_button.click()
     # END LOOP
 
+
 # Wait for the page to load (2 second)
 driver.implicitly_wait(5)
 
@@ -106,3 +147,5 @@ driver.implicitly_wait(5)
 
 # Close the web browser
 driver.quit()
+
+
