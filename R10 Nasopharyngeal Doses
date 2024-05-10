@@ -1,151 +1,79 @@
-# weekdays_in_month.py
 from datetime import datetime, timedelta
-
-# Initialize the date for June 1st, 2024
-start_date = datetime(2024, 6, 1)
-# Calculate the number of days in June 2024
-end_date = datetime(2024, 7, 1)
-
-# List to hold the dates
-weekdays_in_month = []
-
-# Generate the dates
-while start_date < end_date:
-    # Check if it's a weekday (Monday to Friday are 0-4)
-    if start_date.weekday() < 5:
-        # Append the date in the specified format
-        weekdays_in_month.append(start_date.strftime('%m-%d-%Y'))
-    # Move to the next day
-    start_date += timedelta(days=1)
-
-weekdays_in_month
-
-# Print the list of weekdays in June 2024
-for date in weekdays_in_month:
-    print(date)
-
-# Use the first 5 values in the list to iterate through the weekdays in the month and perform the desired actions.
-weekdays_in_month = weekdays_in_month[:5]
-# Convert these strings to integers
-for i in range(len(weekdays_in_month)):
-    weekdays_in_month[i] = int(weekdays_in_month[i].split("-")[1])
-# Call this list first_five_weekdays_in_month
-first_five_weekdays_in_month = weekdays_in_month
-
-
-# Use this list to iterate through the weekdays in the month and perform the desired actions.
-
-###
-###
-
-# R10 Nasopharyngeal Doses
-
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from datetime import date
-import pandas as pd
 
-# Log into RxTrac
-url = "https://myrx.mdanderson.org/rxtrac/Account/Login"
-driver = webdriver.Chrome()
-driver.get(url)
-driver.implicitly_wait(5) # gives an implicit wait for 15 seconds
+def setup_driver():
+    # Initialize the WebDriver
+    driver = webdriver.Chrome()
+    return driver
 
-# https://selenium-python.readthedocs.io/locating-elements.html
+def authenticate(driver):
+    # Log into the website
+    url = "https://myrx.mdanderson.org/rxtrac/Account/Login"
+    driver.get(url)
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "UserName")))
+    driver.find_element(By.ID, "UserName").send_keys("your_username")
+    driver.find_element(By.ID, "Password").send_keys("your_password")
+    driver.find_element(By.CLASS_NAME, "icon-signin").click()
+    WebDriverWait(driver, 20).until(EC.title_contains("RxTrac"))
 
-# USER INFORMATION
-# Find the username field id="UserName"
-username_field = driver.find_element(By.ID,"UserName")
-# Enter the username "USERNAME"
-username_field.send_keys("USERNAME")
-# Find the password field id="Password"
-password_field = driver.find_element(By.ID,"Password")
-# Enter the password "PASSWORD"
-password_field.send_keys("PASSWORD")
-# Find the login button id="login" and click it
-login_button = driver.find_element(By.CLASS_NAME,"icon-signin")
-login_button.click()
+def log_dates(driver):
+    # Initialize dates
+    start_date = datetime(2024, 1, 1)
+    end_date = datetime(2024, 2, 1)
 
+    # List to hold weekdays
+    weekdays_in_month = []
 
-# Wait for the page to load
-WebDriverWait(driver, 20).until(EC.title_contains("RxTrac"))
+    # Generate list of weekdays
+    while start_date < end_date:
+        if start_date.weekday() < 5:  # Monday to Friday are 0-4
+            weekdays_in_month.append(start_date.strftime('%m-%d-%Y'))
+        start_date += timedelta(days=1)
 
-# CHOOSE PHARMACY LOCATION
-# Select from the dropdown menu id="windowlogs" and choose the option "Life Science Building"
-dropdown_menu = driver.find_element(By.ID,"windowlogs")
-# Change windowlogs to R10NOTE
-dropdown_menu.send_keys("R10NOTE")
+    # Perform actions for each weekday
+    for date_str in weekdays_in_month:
+        enter_date_and_log(driver, date_str)
 
-# Wait for the page to load (1 second)
-driver.implicitly_wait(1)
-
-## Create a for-loop through the weekdays in June 2024 using the list generated earlier
-# CHOOSE DATE
-for date in weekdays_in_month:
-    # Find input id="datepicker" and click it
-    datepicker = driver.find_element(By.ID,"datepicker")
+def enter_date_and_log(driver, date_str):
+    # Navigate and select date
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "datepicker")))
+    datepicker = driver.find_element(By.ID, "datepicker")
     datepicker.click()
-    # Change the date to the current date in the loop
-    datepicker.send_keys(first_five_weekdays_in_month[date])
-    # Press enter
-    datepicker.send_keys(Keys.ENTER)
+    datepicker.clear()
+    datepicker.send_keys(date_str)
+    datepicker.send_keys(Keys.RETURN)
 
-    # Wait for the page to load (1 second)
-    driver.implicitly_wait(1)
-    Nasopharyngeal = ["lidocaine nasopharyngeal btls", "phenylephrine nasopharyngeal btls"]
-quantities = [20, 20]
-for i, quantity in enumerate(Nasopharyngeal):
-    quantity = quantities[i]
-    print(f"{quantity} x {Nasopharyngeal[i]}")
+    WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.ID, "newNote")))
 
-    # ITERATE THROUGH THIS LOOP FOR EACH ITEM IN THE LIST
-    # Select button input id="newNote"
-    new_note_button = driver.find_element(By.ID,"newNote")
-    new_note_button.click()
-    # Wait for the page to load (1 second)
-    driver.implicitly_wait(5)
-    # MODAL BODY WINDOW
-    # Input Class="form-control" id="OrderModalReleaseTime" type="text" name="OrderModal.ReleaseTime" value="1/17/2020 10:00:00 AM"
-    release_time = driver.find_element(By.ID,"OrderModalReleaseTime")
-    # Desginate the release time 07:00:00
-    release_time.send_keys("04:00:00")
-    # Desginate time as PM (NOTE: arrow down will depend on what time of day it is)
-    # release_time.send_keys(Keys.ARROW_DOWN)
-    # Find "OrderModalName" field
-    name = driver.find_element(By.ID,"OrderModalName")
-    # Enter "automated_script"
-    name.send_keys("automated_script")
-    # Find "OrderModalNonChemotherapy" field
-    non_chemo = driver.find_element(By.ID,"OrderModalNonChemotherapy")
-    # Type "3 mL Bupivacaine with 0.5% Epinephrine"
-    non_chemo.send_keys(Nasopharyngeal[i])
-    # Find "OrderModalChemotherapy" field
-    chemo = driver.find_element(By.ID,"OrderModalChemotherapy")
-    # Enter iPhone NUMBER
-    chemo.send_keys("")
-    # Find "OrderModalComments" field
-    comments = driver.find_element(By.ID,"OrderModalComments")
-    # Enter "x16_syringes"
-    comments.send_keys(str(quantity))
-    # Select button input id="trackNew"
-    # Wait for the page to load (1 second)
-    driver.implicitly_wait(5)
-    track_new_button = driver.find_element(By.ID,"trackNew")
-    track_new_button.click()
-    # END LOOP
+    # Assuming further actions need to be taken here
+    log_items(driver)
 
+def log_items(driver):
+    items = ["lidocaine nasopharyngeal btls", "phenylephrine nasopharyngeal btls"]
+    quantities = [20, 20]
 
-# Wait for the page to load (2 second)
-driver.implicitly_wait(5)
+    for item, quantity in zip(items, quantities):
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.ID, "newNote")))
+        driver.find_element(By.ID, "newNote").click()
 
-# Take a screenshot of the page
-# driver.save_screenshot("trackscreenshot2.png")
+        # Fill in the modal with necessary details
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, "OrderModalNonChemotherapy")))
+        driver.find_element(By.ID, "OrderModalNonChemotherapy").send_keys(item)
+        driver.find_element(By.ID, "OrderModalComments").send_keys(f"{quantity} units")
 
-# Close the web browser
-driver.quit()
+        # Submit the log
+        driver.find_element(By.ID, "trackNew").click()
+        WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.ID, "confirmationElementOrSimilar")))
 
+def main():
+    driver = setup_driver()
+    authenticate(driver)
+    log_dates(driver)
+    driver.quit()
 
+if __name__ == "__main__":
+    main()
