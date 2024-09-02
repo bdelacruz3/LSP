@@ -3,13 +3,14 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 from datetime import date
 
 # Define your data arrays
 PHONE_NUMBERS = ["713-454-3038", "832-728-8790", "832-748-6230", "713-540-8013", "713-732-9045", "281-793-9194", "713-228-7461"]
 iPHONE_ARRAY = ["iPhone ONE", "iPhone TWO", "iPhone THREE", "iPhone FOUR", "iPhone FIVE", "iPhone SIX", "iPhone SEVEN"]
 
-# Log into RxTrac
+# Initialize the web driver and navigate to the login page
 url = "https://myrx.mdanderson.org/rxtrac/Account/Login"
 driver = webdriver.Chrome()
 driver.get(url)
@@ -17,24 +18,25 @@ driver.get(url)
 # Wait for elements to be present
 driver.implicitly_wait(10)
 
-# USER INFORMATION
+# Log in to RxTrac
 username_field = driver.find_element(By.ID, "UserName")
-username_field.send_keys("enter_your_user_name")
+username_field.send_keys("jde2")
 
 password_field = driver.find_element(By.ID, "Password")
-password_field.send_keys("enter_your_password")
+password_field.send_keys("Lanabear321!")
 
 login_button = driver.find_element(By.CLASS_NAME, "icon-signin")
 login_button.click()
 
-# Wait for the page to load
+# Wait for the page to load and ensure the title contains "RxTrac"
 WebDriverWait(driver, 20).until(EC.title_contains("RxTrac"))
 
-# CHOOSE PHARMACY LOCATION
+# Select the pharmacy location from the dropdown menu
 dropdown_menu = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "windowlogs")))
-dropdown_menu.send_keys("ATC PREMEDS Tracking")
+select = Select(dropdown_menu)
+select.select_by_visible_text("ATC PREMEDS Tracking")
 
-# CHOOSE DATE
+# Select the date from the date picker
 datepicker = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "datepicker")))
 datepicker.click()
 datepicker.send_keys("09/06/2024")
@@ -43,7 +45,7 @@ datepicker.send_keys(Keys.ENTER)
 # Wait for the page to load
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "newNote")))
 
-# ITERATE THROUGH EACH ITEM IN THE LIST
+# Iterate through each item in the list and perform actions
 for i, phone_number in enumerate(PHONE_NUMBERS):
     iphone_name = iPHONE_ARRAY[i]
     print(f"Processing: {iphone_name} with phone number {phone_number}")
