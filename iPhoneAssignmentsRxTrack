@@ -4,85 +4,117 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
-from datetime import date
+from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import os
 
-# Define your data arrays
+# Load environment variables from the 'creds.env' file in the current directory
+load_dotenv('creds.env')
+
+# Retrieve the environment variables
+USERNAME = os.getenv("RXTRAC_USERNAME")
+PASSWORD = os.getenv("RXTRAC_PASSWORD")
+
+# Check if the variables are properly set
+if not USERNAME or not PASSWORD:
+    raise ValueError("Environment variables RXTRAC_USERNAME and RXTRAC_PASSWORD must be set.")
+
+# Now, proceed with the rest of the script
+print(f"Loaded credentials: Username={USERNAME}")
+
+# Define data arrays
 PHONE_NUMBERS = ["713-454-3038", "832-728-8790", "832-748-6230", "713-540-8013", "713-732-9045", "281-793-9194", "713-228-7461"]
-iPHONE_ARRAY = ["iPhone ONE", "iPhone TWO", "iPhone THREE", "iPhone FOUR", "iPhone FIVE", "iPhone SIX", "iPhone SEVEN"]
+iPHONE_ARRAY = ["iPhone 01", "iPhone 02", "iPhone 03", "iPhone 04", "iPhone 05", "iPhone 06", "iPhone 07"]
+
 
 # Initialize the web driver and navigate to the login page
 url = "https://myrx.mdanderson.org/rxtrac/Account/Login"
 driver = webdriver.Chrome()
-driver.get(url)
 
-# Wait for elements to be present
-driver.implicitly_wait(10)
+try:
+    driver.get(url)
 
-# Log in to RxTrac
-username_field = driver.find_element(By.ID, "UserName")
-username_field.send_keys("jde2")
+    # Explicit wait for the login form to load
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "UserName")))
 
-password_field = driver.find_element(By.ID, "Password")
-password_field.send_keys("Lanabear321!")
+    # Log in to RxTrac
+    username_field = driver.find_element(By.ID, "UserName")
+    username_field.send_keys(USERNAME)
 
-login_button = driver.find_element(By.CLASS_NAME, "icon-signin")
-login_button.click()
+    password_field = driver.find_element(By.ID, "Password")
+    password_field.send_keys(PASSWORD)
 
-# Wait for the page to load and ensure the title contains "RxTrac"
-WebDriverWait(driver, 20).until(EC.title_contains("RxTrac"))
+    login_button = driver.find_element(By.CLASS_NAME, "icon-signin")
+    login_button.click()
 
-# Select the pharmacy location from the dropdown menu
-dropdown_menu = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "windowlogs")))
-select = Select(dropdown_menu)
-select.select_by_visible_text("ATC PREMEDS Tracking")
+    # Wait for the page to load and ensure the title contains "RxTrac"
+    WebDriverWait(driver, 20).until(EC.title_contains("RxTrac"))
 
-# Select the date from the date picker
-datepicker = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "datepicker")))
-datepicker.click()
-datepicker.send_keys("09/06/2024")
-datepicker.send_keys(Keys.ENTER)
+    # Select the pharmacy location from the dropdown menu
+    dropdown_menu = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "windowlogs")))
+    select = Select(dropdown_menu)
+    select.select_by_visible_text("R2")
 
-# Wait for the page to load
-WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "newNote")))
+    # Define the date range to loop through
+    start_date = datetime(2024, 12, 1)
+    end_date = datetime(2024, 12, 31)
+    current_date = start_date
 
-# Iterate through each item in the list and perform actions
-for i, phone_number in enumerate(PHONE_NUMBERS):
-    iphone_name = iPHONE_ARRAY[i]
-    print(f"Processing: {iphone_name} with phone number {phone_number}")
+    # Loop through each date in the range
+    while current_date <= end_date:
+        # Convert the current date to the format MM/DD/YYYY
+        formatted_date = current_date.strftime("%m/%d/%Y")
 
-    # Click 'New Note' button
-    new_note_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "newNote")))
-    new_note_button.click()
+        # Select the date from the date picker
+        datepicker = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "datepicker")))
+        datepicker.click()
+        datepicker.clear()
+        datepicker.send_keys(formatted_date)
+        datepicker.send_keys(Keys.ENTER)
 
-    # Enter Release Time
-    release_time = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "OrderModalReleaseTime")))
-    release_time.clear()
-    release_time.send_keys("04:00:00")
+        # Wait for the page to load
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "newNote")))
 
-    # Enter iPhone Name
-    name = driver.find_element(By.ID, "OrderModalName")
-    name.clear()
-    name.send_keys(iphone_name)
+        # Iterate through each item in the list and perform actions
+        for i, phone_number in enumerate(PHONE_NUMBERS):
+            iphone_name = iPHONE_ARRAY[i]
+            print(f"Processing {iphone_name} with phone number {phone_number} on {formatted_date}")
 
-    # Enter Phone Number into Non-Chemotherapy Field
-    non_chemo = driver.find_element(By.ID, "OrderModalNonChemotherapy")
-    non_chemo.clear()
-    non_chemo.send_keys(phone_number)
+            # Click 'New Note' button
+            new_note_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "newNote")))
+            new_note_button.click()
 
-    # Enter comments
-    comments = driver.find_element(By.ID, "OrderModalComments")
-    comments.clear()
-    comments.send_keys("tech")
+            # Enter Release Time
+            release_time = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "OrderModalReleaseTime")))
+            release_time.clear()
+            release_time.send_keys("04:00:00")
+            release_time.send_keys(Keys.ARROW_UP)  # pick AM by default
 
-    # Submit the form
-    track_new_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "trackNew")))
-    track_new_button.click()
+            # Enter iPhone Name
+            name = driver.find_element(By.ID, "OrderModalName")
+            name.clear()
+            name.send_keys(iphone_name)
 
-# Wait for any final operations
-driver.implicitly_wait(5)
+            # Enter Phone Number into Non-Chemotherapy Field
+            non_chemo = driver.find_element(By.ID, "OrderModalNonChemotherapy")
+            non_chemo.clear()
+            non_chemo.send_keys(phone_number)
 
-# Optionally take a screenshot
-# driver.save_screenshot("trackscreenshot2.png")
+            # Enter comments
+            comments = driver.find_element(By.ID, "OrderModalComments")
+            comments.clear()
+            comments.send_keys("tech")
 
-# Close the web browser
-driver.quit()
+            # Submit the form
+            track_new_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "trackNew")))
+            track_new_button.click()
+
+        # Move to the next date
+        current_date += timedelta(days=1)
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+
+finally:
+    # Close the web browser
+    driver.quit()
