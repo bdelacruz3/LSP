@@ -1,0 +1,104 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from datetime import datetime, timedelta
+
+# Define your data arrays
+PREMED_ARRAY = ["Buffered Lidocaine 1%", "Buffered Lidocaine w/ Epi-2% 1:200,000 (10mL syringes)", "Heparin 5,000 units/100mL", "Heparin 10,000 units/500mL in NS RTU", "Promethazine 6.25mg RTU", "Vancomycin 2000mg/250mL","Ondansetron 16mg RTU", "Calcium Chloride 1gm","Calcium Chloride 2gm", "Calcium Chloride 3gm"]
+QUANTITY_ARRAY = ["10","8","2","5","8","5","25","1 (after 5pm)","6 (after 5pm)","6 (after 5pm)"]
+
+# Initialize the web driver and navigate to the login page
+url = "https://myrx.mdanderson.org/rxtrac/Account/Login"
+driver = webdriver.Chrome()
+driver.get(url)
+
+# Wait for elements to be present
+driver.implicitly_wait(10)
+
+# Log in to RxTrac
+username_field = driver.find_element(By.ID, "UserName")
+username_field.send_keys("______")
+
+password_field = driver.find_element(By.ID, "Password")
+password_field.send_keys("______")
+
+login_button = driver.find_element(By.CLASS_NAME, "icon-signin")
+login_button.click()
+
+# Wait for the page to load and ensure the title contains "RxTrac"
+WebDriverWait(driver, 20).until(EC.title_contains("RxTrac"))
+
+# Select the pharmacy location from the dropdown menu
+dropdown_menu = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "windowlogs")))
+select = Select(dropdown_menu)
+select.select_by_visible_text("ATC PREMEDS Tracking")
+
+# Define the date range to loop through
+start_date = datetime(2024, 9, 28)
+end_date = datetime(2024, 9, 29)
+current_date = start_date
+
+# Loop through each date in the range
+while current_date <= end_date:
+    # Convert the current date to the format MM/DD/YYYY
+    formatted_date = current_date.strftime("%m/%d/%Y")
+
+    # Select the date from the date picker
+    datepicker = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "datepicker")))
+    datepicker.click()
+    datepicker.clear()
+    datepicker.send_keys(formatted_date)
+    datepicker.send_keys(Keys.ENTER)
+
+    # Wait for the page to load
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "newNote")))
+
+    # Iterate through each item in the list and perform actions
+    for i, premeds in enumerate(PREMED_ARRAY):
+        quantity = QUANTITY_ARRAY[i]
+        print(f"Processing {quantity} with premed {premeds} on {formatted_date}")
+
+        # Click 'New Note' button
+        new_note_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "newNote")))
+        new_note_button.click()
+
+        # Enter Release Time
+        release_time = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "OrderModalReleaseTime")))
+        release_time.clear()
+        release_time.send_keys("04:00:00")
+        # pick AM by default (UP is running after noon)
+        release_time.send_keys(Keys.ARROW_UP)
+
+        # Enter iPhone Name
+        name = driver.find_element(By.ID, "OrderModalName")
+        name.clear()
+        name.send_keys("R² ATC")
+
+        # Enter Phone Number into Non-Chemotherapy Field
+        non_chemo = driver.find_element(By.ID, "OrderModalNonChemotherapy")
+        non_chemo.clear()
+        non_chemo.send_keys(premeds)
+
+        # Enter comments
+        comments = driver.find_element(By.ID, "OrderModalComments")
+        comments.clear()
+        comments.send_keys(quantity)
+
+        # Submit the form
+        track_new_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "trackNew")))
+        track_new_button.click()
+
+    # Move to the next date
+    current_date += timedelta(days=1)
+
+# Wait for any final operations
+driver.implicitly_wait(5)
+
+# Optionally take a screenshot
+# driver.save_screenshot("trackscreenshot2.png")
+
+# Close the web browser
+driver.quit()
